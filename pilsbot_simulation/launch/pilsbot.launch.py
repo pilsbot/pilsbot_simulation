@@ -17,7 +17,7 @@ def generate_launch_description():
     pkg_share = FindPackageShare('pilsbot_description').find('pilsbot_description')
     urdf_dir = os.path.join(pkg_share, 'urdf')
     xacro_file = os.path.join(urdf_dir, 'pilsbot.urdf.xacro')
-    robot_desc = Command('xacro %s' % xacro_file)
+    robot_desc = Command('xacro {}'.format(xacro_file))
 
     params = {'robot_description': robot_desc,
               'use_sim_time': True}
