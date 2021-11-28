@@ -21,16 +21,8 @@ def generate_launch_description():
     xacro_file = os.path.join(urdf_dir, 'pilsbot.urdf.xacro')
     robot_desc = Command('xacro {}'.format(xacro_file))
 
-    pilsbot_drive_controller = PathJoinSubstitution(
-        [
-            FindPackageShare("pilsbot_control"),
-            "config",
-            "acker_diff_controller.yaml",
-        ]
-    )
-
-    params = {'robot_description': robot_desc,}
-              #'use_sim_time': use_sim_time}
+    params = {'robot_description': robot_desc,
+              'use_sim_time': use_sim_time}
 
     robot_description = Node(package='robot_state_publisher',
                              executable='robot_state_publisher',
@@ -42,17 +34,6 @@ def generate_launch_description():
     spawn_entity = Node(package='gazebo_ros', executable='spawn_entity.py',
                         arguments=['-topic', '/robot_description', '-entity', 'pilsbot'],
                         output='screen')
-
-    controller_manager_node = Node(
-        package="controller_manager",
-        executable="ros2_control_node",
-        # name="pilsbot_controller_manager",
-        parameters=[params, pilsbot_drive_controller],
-        output={
-            "stdout": "screen",
-            "stderr": "screen",
-        },
-    )
 
     spawn_dd_controller = Node(
         package="controller_manager",
@@ -71,7 +52,6 @@ def generate_launch_description():
         gazebo,
         robot_description,
         spawn_entity,
-        controller_manager_node,
         spawn_dd_controller,
         spawn_jsb_controller,
     ])
