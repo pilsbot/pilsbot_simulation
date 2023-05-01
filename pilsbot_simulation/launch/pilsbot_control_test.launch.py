@@ -31,6 +31,14 @@ def generate_launch_description():
         description='Set Gazebo output to verbose.'
     ))
 
+    declared_launch_args.append(DeclareLaunchArgument(
+        'z_offset', default_value=TextSubstitution(text='0.15'),
+        description='Set a z offset for the spawn position.'))
+    
+    declared_launch_args.append(DeclareLaunchArgument(
+        'cm_timeout', default_value=TextSubstitution(text='15'),
+        description='Set a timeout for the controller manager.'))
+
     # intialise args
     controller_config = LaunchConfiguration('controller_config')
     description_file = LaunchConfiguration('descritption_file')
@@ -38,6 +46,8 @@ def generate_launch_description():
     world = LaunchConfiguration('world')
     verbose = LaunchConfiguration('verbose')
     use_sim_time = LaunchConfiguration('use_sim_time', default=True)
+    z_offset = LaunchConfiguration('z_offset')
+    cm_timeout = LaunchConfiguration('cm_timeout')
 
     gazebo = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -76,19 +86,23 @@ def generate_launch_description():
 
     spawn_entity = Node(package='gazebo_ros', executable='spawn_entity.py',
                         arguments=['-topic', '/robot_description',
-                                   '-entity', 'pilsbot'],
+                                   '-entity', 'pilsbot',
+                                   '-timeout', '30',
+                                   '-z', z_offset],
                         output='screen')
 
     spawn_dd_controller = Node(
         package="controller_manager",
         executable="spawner.py",
-        arguments=["pilsbot_velocity_controller"],
+        arguments=["pilsbot_velocity_controller",
+                    '--controller-manager-timeout', cm_timeout],
         output="screen",
     )
     spawn_jsb_controller = Node(
         package="controller_manager",
         executable="spawner.py",
-        arguments=["pilsbot_joint_publisher"],
+        arguments=["pilsbot_joint_publisher",
+        '--controller-manager-timeout', cm_timeout],
         output="screen",
     )
 
