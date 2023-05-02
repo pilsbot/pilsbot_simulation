@@ -10,7 +10,7 @@ def generate_launch_description():
     declared_launch_args = []
 
     declared_launch_args.append(DeclareLaunchArgument(
-        'controller_config', default_value=TextSubstitution(text='acker_diff_controller.yaml'),
+        'controller_config', default_value=TextSubstitution(text='acker_diff_controller_sim.yaml'),
         description='The controller configuration you want to use.'))
 
     declared_launch_args.append(DeclareLaunchArgument(
