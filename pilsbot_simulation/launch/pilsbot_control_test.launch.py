@@ -10,7 +10,7 @@ def generate_launch_description():
     declared_launch_args = []
 
     declared_launch_args.append(DeclareLaunchArgument(
-        'controller_config', default_value=TextSubstitution(text='acker_diff_controller.yaml'),
+        'controller_config', default_value=TextSubstitution(text='acker_diff_controller_sim.yaml'),
         description='The controller configuration you want to use.'))
 
     declared_launch_args.append(DeclareLaunchArgument(
@@ -82,7 +82,9 @@ def generate_launch_description():
     spawn_dd_controller = Node(
         package="controller_manager",
         executable="spawner.py",
-        arguments=["pilsbot_velocity_controller"],
+        arguments=['pilsbot_velocity_controller',
+                   #'--ros-args', '--log-level', 'DEBUG'
+                ],
         output="screen",
     )
     spawn_jsb_controller = Node(
