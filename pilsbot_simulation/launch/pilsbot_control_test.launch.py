@@ -36,8 +36,12 @@ def generate_launch_description():
         description='Set a z offset for the spawn position.'))
 
     declared_launch_args.append(DeclareLaunchArgument(
-        'cm_timeout', default_value=TextSubstitution(text='15'),
+        'cm_timeout', default_value=TextSubstitution(text='60'),
         description='Set a timeout for the controller manager.'))
+    
+    declared_launch_args.append(DeclareLaunchArgument(
+        'spawn_timeout', default_value=TextSubstitution(text='30'),
+        description='Set a timeout for the spawn entity node.'))
 
     # intialise args
     controller_config = LaunchConfiguration('controller_config')
@@ -48,6 +52,7 @@ def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time', default=True)
     z_offset = LaunchConfiguration('z_offset')
     cm_timeout = LaunchConfiguration('cm_timeout')
+    spawn_timeout = LaunchConfiguration('spawn_timeout')
 
     gazebo = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -87,7 +92,7 @@ def generate_launch_description():
     spawn_entity = Node(package='gazebo_ros', executable='spawn_entity.py',
                         arguments=['-topic', '/robot_description',
                                    '-entity', 'pilsbot',
-                                   '-timeout', '30',
+                                   '-timeout', spawn_timeout,
                                    '-z', z_offset],
                         output='screen')
 
