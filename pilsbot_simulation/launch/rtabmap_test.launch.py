@@ -3,7 +3,8 @@ from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from launch_ros.substitutions import FindPackageShare
-from launch_ros.actions import Node
+from launch_ros.actions import Node  # noqa: F401 (the commented-out Node below)
+
 
 def generate_launch_description():
     return LaunchDescription([
@@ -14,7 +15,7 @@ def generate_launch_description():
             'stereo', default_value='true'
         ),
         # Declare more arguments here...
-        
+
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(
                 [FindPackageShare("rtabmap_launch"), '/launch/rtabmap.launch.py']
@@ -58,4 +59,4 @@ def generate_launch_description():
         #         'use_sim_time': 'true',
         #     }]
         # )
-])
+    ])
