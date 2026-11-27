@@ -1,0 +1,37 @@
+== /camera/color/image_raw
+average rate: 10.564
+	min: 0.071s max: 0.170s std dev: 0.03078s window: 12
+== /camera/color/camera_info
+average rate: 11.359
+	min: 0.074s max: 0.121s std dev: 0.01525s window: 13
+== /camera/left/image_rect
+average rate: 6.153
+	min: 0.145s max: 0.202s std dev: 0.01676s window: 8
+== /camera/left/camera_info
+average rate: 5.790
+	min: 0.141s max: 0.254s std dev: 0.03975s window: 8
+== /camera/right/image_rect
+average rate: 6.187
+	min: 0.140s max: 0.205s std dev: 0.02450s window: 8
+== /camera/right/camera_info
+average rate: 5.128
+	min: 0.146s max: 0.228s std dev: 0.02406s window: 7
+== /camera/stereo/depth
+average rate: 4.970
+	min: 0.151s max: 0.371s std dev: 0.07708s window: 6
+== /camera/stereo/camera_info
+average rate: 5.894
+	min: 0.143s max: 0.235s std dev: 0.03322s window: 7
+== /camera/stereo/points
+average rate: 3.480
+	min: 0.143s max: 0.546s std dev: 0.15406s window: 5
+== /odom
+average rate: 21.436
+	min: 0.020s max: 0.116s std dev: 0.03836s window: 22
+== /joint_states
+average rate: 18.399
+	min: 0.020s max: 0.166s std dev: 0.04059s window: 20
+== /clock
+average rate: 402.461
+	min: 0.000s max: 0.103s std dev: 0.01052s window: 403
+real_time_factor: 0.2288

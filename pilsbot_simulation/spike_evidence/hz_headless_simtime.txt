@@ -1,0 +1,11 @@
+/camera/color/image_raw (sim time): average rate: 22.857
+/camera/color/camera_info (sim time): average rate: 30.303
+/camera/left/image_rect (sim time): average rate: 15.152
+/camera/left/camera_info (sim time): average rate: 15.165
+/camera/right/image_rect (sim time): average rate: 15.152
+/camera/right/camera_info (sim time): average rate: 15.152
+/camera/stereo/depth (sim time): average rate: 15.152
+/camera/stereo/camera_info (sim time): average rate: 15.152
+/camera/stereo/points (sim time): average rate: 10.695
+/odom (sim time): average rate: 50.000
+/joint_states (sim time): average rate: 49.952

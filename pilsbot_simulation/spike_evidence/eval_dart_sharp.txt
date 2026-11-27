@@ -1,0 +1,8 @@
+start: odom=(+2.427, -3.852, -154.8deg) gt=(+3.063, -3.956, -152.3deg)
+settle         v=+0.00 cmd_angle=+0.000 steer(last2s)=+0.000 [+0.000,+0.001] | odom=(+0.000, +0.000, -0.0deg) gt=(-0.000, -0.000, +0.0deg) pos_err=0.000 m yaw_err=-0.0 deg (gt dist from start 0.00 m) | phase gt path 0.00 m turned +0 deg
+sharp+1.0      v=+0.40 cmd_angle=+1.000 steer(last2s)=+0.996 [+0.987,+1.013] | odom=(+0.391, -1.090, +70.6deg) gt=(-0.170, -0.002, +9.3deg) pos_err=1.224 m yaw_err=+61.3 deg (gt dist from start 0.17 m) | phase gt path 2.56 m turned -351 deg
+sharp-1.0      v=+0.40 cmd_angle=-1.000 steer(last2s)=-0.998 [-1.024,-0.983] | odom=(+0.711, -0.678, +57.6deg) gt=(+0.114, +0.079, +2.0deg) pos_err=0.964 m yaw_err=+55.6 deg (gt dist from start 0.14 m) | phase gt path 2.97 m turned +353 deg
+slalom+0.6     v=+0.40 cmd_angle=+0.600 steer(last2s)=+0.599 [+0.592,+0.610] | odom=(+1.783, +0.252, -1.0deg) gt=(+1.461, -0.287, -56.7deg) pos_err=0.628 m yaw_err=+55.6 deg (gt dist from start 1.49 m) | phase gt path 1.50 m turned -59 deg
+slalom-0.6     v=+0.40 cmd_angle=-0.600 steer(last2s)=-0.602 [-0.606,-0.594] | odom=(+3.107, +0.862, +73.2deg) gt=(+2.727, -1.101, +12.7deg) pos_err=1.999 m yaw_err=+60.6 deg (gt dist from start 2.94 m) | phase gt path 1.65 m turned +69 deg
+stop           v=+0.00 cmd_angle=+0.000 steer(last2s)=-0.000 [-0.008,+0.001] | odom=(+3.152, +1.130, +80.6deg) gt=(+2.989, -1.009, +20.5deg) pos_err=2.145 m yaw_err=+60.2 deg (gt dist from start 3.16 m) | phase gt path 0.28 m turned +8 deg
+END odom=(+3.152, +1.130, +80.6deg) gt=(+2.989, -1.009, +20.5deg) pos_err=2.145 m

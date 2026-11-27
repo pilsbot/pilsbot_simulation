@@ -35,6 +35,6 @@ endif()
 ament_package()
 
 install(DIRECTORY
-  launch
+  launch worlds config scripts
   DESTINATION share/${PROJECT_NAME}/
 )

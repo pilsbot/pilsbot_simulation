@@ -1,0 +1,58 @@
+[INFO] [spawner-5]: process started with pid [951393]
+[INFO] [spawner-6]: process started with pid [951395]
+[INFO] [hardware_activator-7]: process started with pid [951406]
+[spawner-6] [INFO] [1795798495.194164771] [spawner_joint_state_publisher]: waiting for service /controller_manager/list_controllers to become available...
+[hardware_activator-7] [INFO] [1795798495.247085868] [hardware_activator]: Keeping PilsbotSystem and joint_state_publisher, pilsbot_velocity_controller active (checking every 5 s)
+[spawner-5] [INFO] [1795798495.365329429] [spawner_pilsbot_velocity_controller]: waiting for service /controller_manager/list_controllers to become available...
+[ign gazebo-1] [INFO] [1795798497.738427485] [gz_ros2_control]: connected to service!! robot_state_publisher asking for robot_description
+[ign gazebo-1] [INFO] [1795798497.744599206] [gz_ros2_control]: Received URDF from param server
+[ign gazebo-1] [INFO] [1795798497.813358826] [gz_ros2_control]: The position_proportional_gain has been set to: 0.1
+[ign gazebo-1] [INFO] [1795798497.814683017] [gz_ros2_control]: Loading joint: front_wheel_left_joint
+[ign gazebo-1] [INFO] [1795798497.815286791] [gz_ros2_control]: 	State:
+[ign gazebo-1] [INFO] [1795798497.815448980] [gz_ros2_control]: 		 position
+[ign gazebo-1] [INFO] [1795798497.815564766] [gz_ros2_control]: 		 velocity
+[ign gazebo-1] [INFO] [1795798497.815661895] [gz_ros2_control]: 	Command:
+[ign gazebo-1] [INFO] [1795798497.815754576] [gz_ros2_control]: 		 velocity
+[ign gazebo-1] [INFO] [1795798497.815950176] [gz_ros2_control]: Loading joint: front_wheel_right_joint
+[ign gazebo-1] [INFO] [1795798497.816122946] [gz_ros2_control]: 	State:
+[ign gazebo-1] [INFO] [1795798497.816259703] [gz_ros2_control]: 		 position
+[ign gazebo-1] [INFO] [1795798497.816390756] [gz_ros2_control]: 		 velocity
+[ign gazebo-1] [INFO] [1795798497.816772421] [gz_ros2_control]: 	Command:
+[ign gazebo-1] [INFO] [1795798497.816907855] [gz_ros2_control]: 		 velocity
+[ign gazebo-1] [INFO] [1795798497.817109059] [gz_ros2_control]: Loading joint: rear_wheel_left_joint
+[ign gazebo-1] [INFO] [1795798497.817240111] [gz_ros2_control]: 	State:
+[ign gazebo-1] [INFO] [1795798497.817349811] [gz_ros2_control]: 		 position
+[ign gazebo-1] [INFO] [1795798497.817460865] [gz_ros2_control]: 		 velocity
+[ign gazebo-1] [INFO] [1795798497.817566420] [gz_ros2_control]: 	Command:
+[ign gazebo-1] [INFO] [1795798497.817706873] [gz_ros2_control]: Loading joint: rear_wheel_right_joint
+[ign gazebo-1] [INFO] [1795798497.817823537] [gz_ros2_control]: 	State:
+[ign gazebo-1] [INFO] [1795798497.817930500] [gz_ros2_control]: 		 position
+[ign gazebo-1] [INFO] [1795798497.818027804] [gz_ros2_control]: 		 velocity
+[ign gazebo-1] [INFO] [1795798497.818125485] [gz_ros2_control]: 	Command:
+[ign gazebo-1] [INFO] [1795798497.818263551] [gz_ros2_control]: Loading joint: steering_axle_joint
+[ign gazebo-1] [INFO] [1795798497.818654600] [gz_ros2_control]: 	State:
+[ign gazebo-1] [INFO] [1795798497.819179547] [gz_ros2_control]: 		 position
+[ign gazebo-1] [INFO] [1795798497.821945315] [gz_ros2_control]: 	Command:
+[ign gazebo-1] [INFO] [1795798497.830085242] [resource_manager]: Initialize hardware 'PilsbotSystem' 
+[ign gazebo-1] [INFO] [1795798497.831799057] [resource_manager]: Successful initialization of hardware 'PilsbotSystem'
+[ign gazebo-1] [INFO] [1795798497.832333414] [resource_manager]: 'configure' hardware 'PilsbotSystem' 
+[ign gazebo-1] [INFO] [1795798497.832427010] [gz_ros2_control]: System Successfully configured!
+[ign gazebo-1] [INFO] [1795798497.832618047] [resource_manager]: Successful 'configure' of hardware 'PilsbotSystem'
+[ign gazebo-1] [INFO] [1795798497.832715449] [resource_manager]: 'activate' hardware 'PilsbotSystem' 
+[ign gazebo-1] [INFO] [1795798497.833030675] [resource_manager]: Successful 'activate' of hardware 'PilsbotSystem'
+[ign gazebo-1] [INFO] [1795798497.833136018] [gz_ros2_control]: Loading controller_manager
+[ign gazebo-1] [INFO] [1795798497.954718595] [controller_manager]: Loading controller 'joint_state_publisher'
+[ign gazebo-1] [WARN] [1795798497.979431702] [gz_ros2_control]:  Desired controller update period (0.02 s) is slower than the gazebo simulation period (0.001 s).
+[spawner-6] [INFO] [1795798498.053029212] [spawner_joint_state_publisher]: [94mLoaded [1mjoint_state_publisher[0m
+[ign gazebo-1] [INFO] [1795798498.056027250] [controller_manager]: Configuring controller 'joint_state_publisher'
+[ign gazebo-1] [INFO] [1795798498.130150171] [controller_manager]: Loading controller 'pilsbot_velocity_controller'
+[spawner-5] [INFO] [1795798498.196056844] [spawner_pilsbot_velocity_controller]: [94mLoaded [1mpilsbot_velocity_controller[0m
+[ign gazebo-1] [INFO] [1795798498.202081968] [controller_manager]: Configuring controller 'pilsbot_velocity_controller'
+[ign gazebo-1] [INFO] [1795798498.202431810] [pilsbot_velocity_controller]: Wheel names: 
+[ign gazebo-1] [INFO] [1795798498.202794046] [pilsbot_velocity_controller]: PID: p 2.0000 i 0.0500 d 0.0050
+[ign gazebo-1] [INFO] [1795798498.202848890] [pilsbot_velocity_controller]: PID: max 1.0000 min -1.0000 max_dv 5.0000
+[ign gazebo-1] [INFO] [1795798498.202887012] [pilsbot_velocity_controller]: PID: oIa 0.3000
+[INFO] [spawner-6]: process has finished cleanly [pid 951395]
+[INFO] [spawner-5]: process has finished cleanly [pid 951393]
+[ign gazebo-1] [INFO] [1795798522.706479832] [controller_manager]: Switch controller timeout is set to 0, using default 1s!
+[hardware_activator-7] [INFO] [1795798522.743510401] [hardware_activator]: Activated joint_state_publisher, pilsbot_velocity_controller

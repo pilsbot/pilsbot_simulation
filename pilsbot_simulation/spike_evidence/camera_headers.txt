@@ -1,0 +1,64 @@
+                        when clock is not published during simulation
+  -s, --use-sim-time    Enable ROS simulation time
+== /camera/color/image_raw
+    sec: 40
+    nanosec: 590000000
+  frame_id: oak_rgb_camera_optical_frame
+height: 720
+width: 1280
+encoding: rgb8
+== /camera/left/image_rect
+    sec: 41
+    nanosec: 976000000
+  frame_id: oak_left_camera_optical_frame
+height: 400
+width: 640
+encoding: mono8
+== /camera/right/image_rect
+    sec: 42
+    nanosec: 636000000
+  frame_id: oak_right_camera_optical_frame
+height: 400
+width: 640
+encoding: mono8
+== /camera/stereo/depth
+    sec: 43
+    nanosec: 560000000
+  frame_id: oak_left_camera_optical_frame
+height: 400
+width: 640
+encoding: 32FC1
+== /camera/color/camera_info
+  frame_id: oak_rgb_camera_optical_frame
+height: 720
+width: 1280
+distortion_model: plumb_bob
+d:
+- 0.0
+- 0.0
+- 0.0
+- 0.0
+- 0.0
+k:
+- 935.4854583740234
+- 0.0
+- 640.0
+== /camera/stereo/camera_info
+  frame_id: oak_left_camera_optical_frame
+height: 400
+width: 640
+distortion_model: plumb_bob
+d:
+- 0.0
+- 0.0
+- 0.0
+- 0.0
+- 0.0
+k:
+- 434.3100280044921
+- 0.0
+- 320.0
+  frame_id: oak_left_camera_optical_frame
+height: 400
+width: 640
+point_step: 24
