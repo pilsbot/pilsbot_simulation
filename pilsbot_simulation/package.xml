@@ -14,6 +14,9 @@
   <exec_depend>launch_ros</exec_depend>
   <exec_depend>pilsbot_bringup</exec_depend>
   <exec_depend>pilsbot_description</exec_depend>
+  <!-- hardware:=gazebo starts the driver's launch files through bringup,
+       which does not declare it. -->
+  <exec_depend>pilsbot_driver</exec_depend>
   <exec_depend>ros_gz_bridge</exec_depend>
   <exec_depend>ros_gz_sim</exec_depend>
 

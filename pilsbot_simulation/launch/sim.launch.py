@@ -11,8 +11,11 @@ runs inside Gazebo's gz_ros2_control plugin.
 Arguments of pilsbot_bringup (e.g. foxglove:=false) pass through.
 """
 
+import shlex
+
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction
+from launch.actions import DeclareLaunchArgument, GroupAction, IncludeLaunchDescription, \
+    OpaqueFunction, SetLaunchConfiguration
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
@@ -48,14 +51,23 @@ def launch_setup(context):
         gz_args = ['-s', '--headless-rendering'] + gz_args
     gz_args.append(LaunchConfiguration('world').perform(context))
 
-    gazebo = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            [FindPackageShare('ros_gz_sim'), '/launch/gz_sim.launch.py']),
-        launch_arguments={
-            'gz_args': ' '.join(gz_args),
-            # Without Gazebo there is no controller manager: end everything.
-            'on_exit_shutdown': 'true',
-        }.items())
+    # ros_gz_sim runs `ruby ign gazebo <gz_args>` through a shell (shell=True):
+    # quote the arguments, and exec, so that the shell is replaced by Gazebo.
+    # Otherwise launch's SIGINT/SIGTERM on shutdown stops the shell only and
+    # the gz server outlives the launch. The scoped group keeps the prefix
+    # away from the robot's nodes.
+    gazebo = GroupAction(scoped=True, actions=[
+        SetLaunchConfiguration('launch-prefix', 'exec'),
+        SetLaunchConfiguration('launch-prefix-filter', ''),
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                [FindPackageShare('ros_gz_sim'), '/launch/gz_sim.launch.py']),
+            launch_arguments={
+                'gz_args': ' '.join(shlex.quote(arg) for arg in gz_args),
+                # Without Gazebo there is no controller manager: end everything.
+                'on_exit_shutdown': 'true',
+            }.items()),
+    ])
 
     spawn = Node(
         package='ros_gz_sim', executable='create', output='screen',

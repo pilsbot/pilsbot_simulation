@@ -7,7 +7,8 @@ import re
 import shlex
 
 from launch import LaunchContext
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction
+from launch.actions import DeclareLaunchArgument, GroupAction, IncludeLaunchDescription, \
+    OpaqueFunction, PopLaunchConfigurations, PushLaunchConfigurations, SetLaunchConfiguration
 from launch.utilities import normalize_to_list_of_substitutions, perform_substitutions
 from launch_ros.actions import Node
 from launch_ros.utilities import evaluate_parameters
@@ -18,7 +19,12 @@ LAUNCH_FILE = PACKAGE / 'launch' / 'sim.launch.py'
 
 
 def expand(**arguments):
-    """Declare the arguments and run the OpaqueFunctions, like `ros2 launch` does."""
+    """
+    Declare the arguments and run the OpaqueFunctions and groups, like `ros2 launch` does.
+
+    Each include is returned with the launch configurations it would see, in
+    LAUNCH_CONFIGURATIONS[id(include)].
+    """
     spec = importlib.util.spec_from_file_location('sim_launch', LAUNCH_FILE)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
@@ -33,11 +39,19 @@ def expand(**arguments):
             continue
         if isinstance(entity, DeclareLaunchArgument):
             entity.visit(context)  # applies the default and checks the choices
-        elif isinstance(entity, OpaqueFunction):
+        elif isinstance(entity, (OpaqueFunction, GroupAction)):
             pending[:0] = entity.visit(context) or []
+        elif isinstance(entity, (SetLaunchConfiguration, PushLaunchConfigurations,
+                                 PopLaunchConfigurations)):
+            entity.visit(context)
         else:
+            if isinstance(entity, IncludeLaunchDescription):
+                LAUNCH_CONFIGURATIONS[id(entity)] = dict(context.launch_configurations)
             actions.append(entity)
     return context, actions
+
+
+LAUNCH_CONFIGURATIONS = {}
 
 
 def evaluate(context, substitutions):
@@ -74,6 +88,12 @@ def node_parameters(context, node):
     return merged
 
 
+def include(actions, package):
+    [found] = [a for a in actions if isinstance(a, IncludeLaunchDescription) and
+               f"FindPackageShare(pkg='{package}')" in a.launch_description_source.location]
+    return found
+
+
 def gz_args(**arguments):
     context, actions = expand(**arguments)
     return shlex.split(includes(context, actions)['ros_gz_sim']['gz_args'])
@@ -91,6 +111,30 @@ def test_starts_gazebo_running_with_the_flat_world_by_default():
 
 def test_world_argument_replaces_the_world():
     assert gz_args(world='/somewhere/city.sdf')[-1] == '/somewhere/city.sdf'
+
+
+@pytest.mark.parametrize('world', ['/my worlds/city.sdf', "/w/it's;$(rm -rf x)&.sdf"])
+def test_a_world_path_with_spaces_or_shell_characters_reaches_gazebo_unchanged(world):
+    # ros_gz_sim runs gz_args through a shell.
+    assert gz_args(world=world)[-1] == world
+
+
+def test_the_shell_is_replaced_by_gazebo_so_a_signal_to_the_launch_reaches_it():
+    # ros_gz_sim starts `ruby ign gazebo` with shell=True. Without exec, the
+    # shell gets launch's SIGINT/SIGTERM on shutdown and the gz server
+    # outlives the launch.
+    _, actions = expand()
+
+    gazebo = LAUNCH_CONFIGURATIONS[id(include(actions, 'ros_gz_sim'))]
+    assert gazebo['launch-prefix'] == 'exec'
+    assert gazebo.get('launch-prefix-filter', '') == ''
+
+
+def test_the_exec_prefix_stays_with_gazebo():
+    _, actions = expand(**{'launch-prefix': 'valgrind'})
+
+    robot = LAUNCH_CONFIGURATIONS[id(include(actions, 'pilsbot_bringup'))]
+    assert robot['launch-prefix'] == 'valgrind'
 
 
 def test_gui_is_the_default():

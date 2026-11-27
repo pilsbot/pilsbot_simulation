@@ -6,7 +6,7 @@ Gazebo Classic is not supported.
 
 ## Requirements
 
-Gazebo Fortress with `ros-humble-ros-gz` and `ros-humble-gz-ros2-control` (apt), and the Humble Pilsbot stack (`pilsbot_bringup`, `pilsbot_hw_ros`, `pils_control`, `pilsbot_description`, `teleop_acker_joy`).
+Gazebo Fortress with `ros-humble-ros-gz` and `ros-humble-gz-ros2-control` (apt), and the Humble Pilsbot stack (`pilsbot_bringup`, `pilsbot_hw_ros`, `pils_control`, `pilsbot_description`, `teleop_acker_joy`). `colcon build --packages-up-to pilsbot_simulation` builds the Pilsbot packages it needs, `pilsbot_driver` included.
 
 ## Run
 
@@ -14,6 +14,8 @@ Gazebo Fortress with `ros-humble-ros-gz` and `ros-humble-gz-ros2-control` (apt),
 ros2 launch pilsbot_simulation sim.launch.py              # with the Gazebo GUI
 ros2 launch pilsbot_simulation sim.launch.py gui:=false   # server only, cameras render headless
 ```
+
+Stop it with Ctrl-C, or with a signal to the `ros2 launch` process alone (`kill <pid>`, systemd): Gazebo runs as `exec`, so it gets launch's signal and stops with the rest.
 
 The controllers become active a few seconds of sim time after the launch (the hardware activator's period). The sim usually runs below real time with the cameras on, so this takes longer on the wall clock.
 
@@ -66,7 +68,7 @@ Known limit of the sim: starting or stopping with the steering at 1 rad or more 
 colcon test --packages-select pilsbot_simulation
 ```
 
-`test_sim_drive.launch.py` runs the simulation headless: both controllers become active, a forward command moves `odom` forward, and a steering command turns `steering_axle_joint`. It takes a few minutes. It skips itself when Gazebo Fortress, `ros_gz` or `gz_ros2_control` is missing, or with `PILSBOT_SKIP_GAZEBO_TESTS=1`; `colcon test --packages-select pilsbot_simulation --ctest-args -LE gazebo` leaves it out.
+`test_sim_drive.launch.py` runs the simulation headless: both controllers become active, a forward command moves `odom` forward, and a steering command turns `steering_axle_joint`. After the launch has ended, no process of the run may be left (the run has its own `IGN_PARTITION`). It takes a few minutes. It skips itself when Gazebo Fortress, `ros_gz` or `gz_ros2_control` is missing, or with `PILSBOT_SKIP_GAZEBO_TESTS=1`; `colcon test --packages-select pilsbot_simulation --ctest-args -LE gazebo` leaves it out.
 
 ## rtabmap_test.launch.py
 

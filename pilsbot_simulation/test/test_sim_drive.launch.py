@@ -217,21 +217,46 @@ def processes_in_partition():
     return found
 
 
-@launch_testing.post_shutdown_test()
-class TestNoGazeboLeftBehind(unittest.TestCase):
-
-    def test_stop_the_orphaned_gazebo_server(self):
-        # launch stops ros_gz_sim's `ign gazebo` (a ruby wrapper) with SIGINT,
-        # then SIGTERM; the gz server it forked does not get the signal and
-        # outlives the launch. A terminal's Ctrl-C reaches the whole process
-        # group and does not leave it behind.
-        leftovers = processes_in_partition()
-        for pid in leftovers:
+def stop_processes(pids):
+    for pid in pids:
+        try:
             os.kill(pid, signal.SIGTERM)
-        deadline = time.monotonic() + 10.0
+        except ProcessLookupError:
+            pass
+    deadline = time.monotonic() + 10.0
+    while processes_in_partition() and time.monotonic() < deadline:
+        time.sleep(0.2)
+    for pid in processes_in_partition():
+        try:
+            os.kill(pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+
+
+@launch_testing.post_shutdown_test()
+class TestNothingLeftBehind(unittest.TestCase):
+
+    def tearDown(self):
+        # Cleanup, not a check: whatever the test below finds is stopped, so
+        # a failed run does not leave a gz server running on the machine.
+        stop_processes(processes_in_partition())
+
+    def test_the_launch_stopped_all_its_processes(self):
+        # launch_testing ends the run with a signal to the launch's processes
+        # only, as systemd or `kill <pid>` would, not to the process group.
+        # The gz server must stop with them (sim.launch.py execs it). A few
+        # seconds' grace for anything a launched process forked.
+        deadline = time.monotonic() + 5.0
         while processes_in_partition() and time.monotonic() < deadline:
             time.sleep(0.2)
-        for pid in processes_in_partition():
-            os.kill(pid, signal.SIGKILL)
-        if leftovers:
-            print(f'stopped {len(leftovers)} process(es) left behind by the launch: {leftovers}')
+        leftovers = processes_in_partition()
+        self.assertEqual(leftovers, [], 'processes still running after the launch ended: ' +
+                         ', '.join(f'{pid} {command_line(pid)}' for pid in leftovers))
+
+
+def command_line(pid):
+    try:
+        return (Path('/proc') / str(pid) / 'cmdline').read_bytes() \
+            .replace(b'\0', b' ').decode(errors='replace').strip()
+    except OSError:
+        return '(gone)'
