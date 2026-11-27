@@ -32,7 +32,7 @@ def generate_launch_description():
     ))
 
     declared_launch_args.append(DeclareLaunchArgument(
-        'z_offset', default_value=TextSubstitution(text='0.15'),
+        'z_offset', default_value=TextSubstitution(text='0.3'),
         description='Set a z offset for the spawn position.'))
 
     declared_launch_args.append(DeclareLaunchArgument(
