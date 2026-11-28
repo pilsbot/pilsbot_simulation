@@ -6,7 +6,8 @@ from pathlib import Path
 import re
 import shlex
 
-from ament_index_python.packages import get_package_share_directory
+import ament_index_python.packages
+from ament_index_python.packages import get_package_share_directory, PackageNotFoundError
 from launch import LaunchContext
 from launch.actions import DeclareLaunchArgument, GroupAction, IncludeLaunchDescription, \
     OpaqueFunction, PopLaunchConfigurations, PushLaunchConfigurations, SetLaunchConfiguration
@@ -110,19 +111,39 @@ def test_starts_gazebo_running_with_the_flat_world_by_default():
     assert Path(args[-1]).parent.name == 'worlds'
 
 
-def test_flat_is_the_packages_flat_world():
-    assert gz_args(world='flat')[-1] == gz_args()[-1]
-
-
-@pytest.mark.parametrize('world, sdf', [('citysim', 'simple_city.sdf'),
-                                        ('citysim_block', 'simple_city_block.sdf')])
-def test_citysim_names_resolve_to_the_installed_citysim_worlds(world, sdf):
+@pytest.mark.parametrize('world, package, sdf', [
+    ('flat', 'pilsbot_simulation', 'flat.sdf'),
+    ('citysim', 'citysim', 'simple_city.sdf'),
+    ('citysim_block', 'citysim', 'simple_city_block.sdf')])
+def test_world_names_resolve_to_installed_world_files(world, package, sdf):
     # citysim: the full city; citysim_block: the cropped block around the
     # spawn road (pilsbot/pilsbot_simulation#7).
     path = Path(gz_args(world=world)[-1])
 
-    assert path == Path(get_package_share_directory('citysim')) / 'worlds' / sdf
+    assert path == Path(get_package_share_directory(package)) / 'worlds' / sdf
     assert path.is_file()
+
+
+@pytest.mark.parametrize('world', ['citysim', 'citysim_block'])
+def test_a_citysim_world_without_citysim_installed_fails_naming_world_and_package(
+        world, monkeypatch):
+    real_lookup = ament_index_python.packages.get_package_share_directory
+
+    def citysim_missing(package):
+        if package == 'citysim':
+            raise PackageNotFoundError(package)
+        return real_lookup(package)
+    # sim.launch.py imports the function when expand() loads it.
+    monkeypatch.setattr(ament_index_python.packages, 'get_package_share_directory',
+                        citysim_missing)
+
+    with pytest.raises(RuntimeError) as error:
+        expand(world=world)
+
+    message = str(error.value)
+    assert f'"{world}"' in message
+    assert 'citysim package' in message
+    assert 'not installed' in message
 
 
 def test_world_argument_replaces_the_world():
@@ -235,9 +256,9 @@ def test_in_citysim_the_robot_spawns_on_a_road_by_default(world):
     assert spawn_pose(world=world) == [-35.0, -1.8, pytest.approx(5.03), 0.0]
 
 
-@pytest.mark.parametrize('world', ['flat', '/somewhere/city.sdf'])
-def test_on_the_flat_world_and_on_a_path_the_robot_spawns_at_the_origin(world):
-    assert spawn_pose(world=world) == [0.0, 0.0, pytest.approx(0.02), 0.0]
+def test_on_a_world_path_the_robot_spawns_at_the_origin_as_on_the_flat_world():
+    # flat's spawn point: test_spawns_pilsbot_from_robot_description_at_the_origin_by_default.
+    assert spawn_pose(world='/somewhere/city.sdf') == [0.0, 0.0, pytest.approx(0.02), 0.0]
 
 
 def test_a_spawn_argument_overrides_the_worlds_default_alone():
