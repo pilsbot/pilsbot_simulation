@@ -22,7 +22,7 @@ def gazebo_unavailable():
         return 'PILSBOT_SKIP_GAZEBO_TESTS is set'
     if shutil.which('ign') is None:
         return 'Gazebo Fortress (ign) is not installed'
-    for package in ['ros_gz_sim', 'ros_gz_bridge', 'gz_ros2_control']:
+    for package in ['ros_gz_sim', 'ros_gz_bridge', 'ros_gz_image', 'gz_ros2_control']:
         try:
             get_package_share_directory(package)
         except PackageNotFoundError:

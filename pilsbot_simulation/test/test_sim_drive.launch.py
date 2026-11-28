@@ -2,9 +2,10 @@
 # with the robot stack, the spawners and the hardware activator bring both
 # controllers up, and the robot drives and steers.
 #
+# Runs with cameras:=false: nothing renders, so the sim runs faster.
+#
 # Needs Gazebo Fortress (ign), ros_gz and gz_ros2_control and takes a few
-# minutes (the cameras render, so the sim runs well below real time on
-# integrated graphics). It is skipped where Gazebo is missing, or with
+# minutes. It is skipped where Gazebo is missing, or with
 # PILSBOT_SKIP_GAZEBO_TESTS=1; `colcon test --ctest-args -LE gazebo` leaves it
 # out as well.
 #
@@ -54,7 +55,8 @@ def generate_test_description():
     return LaunchDescription(partition_actions() + [
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(str(sim_launch_file())),
-            launch_arguments={'gui': 'false', 'foxglove': 'false'}.items()),
+            launch_arguments={'gui': 'false', 'foxglove': 'false',
+                              'cameras': 'false'}.items()),
         launch_testing.actions.ReadyToTest(),
     ])
 
