@@ -1,4 +1,5 @@
 # SPIKE: bridge.yaml without the images (images:=image_bridge bridges them)
+# and without Gazebo's point cloud (x-forward data under an optical-frame header)
 - ros_topic_name: /clock
   gz_topic_name: /clock
   ros_type_name: rosgraph_msgs/msg/Clock
@@ -23,11 +24,6 @@
   gz_topic_name: camera/stereo/camera_info
   ros_type_name: sensor_msgs/msg/CameraInfo
   gz_type_name: ignition.msgs.CameraInfo
-  direction: GZ_TO_ROS
-- ros_topic_name: /camera/stereo/points
-  gz_topic_name: camera/stereo/depth/points
-  ros_type_name: sensor_msgs/msg/PointCloud2
-  gz_type_name: ignition.msgs.PointCloudPacked
   direction: GZ_TO_ROS
 - ros_topic_name: /camera_info
   gz_topic_name: front_camera/camera_info

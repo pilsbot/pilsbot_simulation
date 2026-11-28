@@ -7,6 +7,7 @@ citysim full, sun shadows off      2 ms  on       parameter_bridge  0.195  2.07 
   same run, ROS bridge killed      2 ms  on       none              0.245  2.08 / 1.68
 citysim full                       4 ms  on       parameter_bridge  0.198  1.88 / 2.29
 citysim full                       2 ms  off      parameter_bridge  0.247  1.52 / 1.42
+citysim full, shadows off, image_bridge, no gz points bridged (spec-like)  2 ms  on  0.199  1.39 / 1.85
 citysim block (crop -60..30, -30..30) 1 ms on     parameter_bridge  0.230 / 0.234  2.09 / 3.11, 2.94 / 3.10
 citysim block                      1 ms  on       image_bridge      0.229  2.90 / 3.34
 Server only (no robot, no sensors), probe.sh:
@@ -17,6 +18,11 @@ citysim full, all scenery static           4 ms   0.585
 citysim full, static, no scenery collisions (upper bound for collision proxies) 1 ms 0.37
 only the 24 non-static Fuel models (cinder blocks, cones, barrel, dumpsters, boxes, person)  1 ms  0.017
 only trees (252 pine/oak)                  1 ms   0.42  (0.84 without their collisions)
+
+Camera_info: P[3] = -16.2866 (= -fx * 0.0375, fx 434.31) on left, right AND stereo; colour 0.
+CSI camera_info D = [0.138183, 0.637974, -0.006956, 0.0, 0.010038] (plumb_bob) but ogre2 does not render
+the distortion ("ImageBrownDistortionModel is not supported in ogre2"): image undistorted, camera_info distorted.
+Mono L8 images are linear (no sRGB gamma): same scene, mean grey 120.8 (colour, converted) vs 55.6 (left L8).
 
 Load time with warm Fuel cache: /stats flowing 22.6 s after start (full city, server only), 638 models.
 Fuel: first launch downloaded 53 models in ~119 s; 4 nested dependencies (stop light, 2 jersey barriers,
