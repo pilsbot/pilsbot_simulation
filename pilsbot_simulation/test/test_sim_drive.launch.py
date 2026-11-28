@@ -2,9 +2,10 @@
 # with the robot stack, the spawners and the hardware activator bring both
 # controllers up, and the robot drives and steers.
 #
+# Runs with cameras:=false: nothing renders, so the sim runs faster.
+#
 # Needs Gazebo Fortress (ign), ros_gz and gz_ros2_control and takes a few
-# minutes (the cameras render, so the sim runs well below real time on
-# integrated graphics). It is skipped where Gazebo is missing, or with
+# minutes. It is skipped where Gazebo is missing, or with
 # PILSBOT_SKIP_GAZEBO_TESTS=1; `colcon test --ctest-args -LE gazebo` leaves it
 # out as well.
 #
@@ -13,18 +14,15 @@
 # message. Steering stays at 0.4 rad: starting or stopping at 1 rad or more
 # makes the sim's wheels slip (pilsbot/pilsbot_simulation#1).
 import math
-import os
 from pathlib import Path
-import shutil
-import signal
+import sys
 import time
 import unittest
 
 from ackermann_msgs.msg import AckermannDriveStamped
-from ament_index_python.packages import get_package_share_directory, PackageNotFoundError
 from controller_manager_msgs.srv import ListControllers
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, SetEnvironmentVariable
+from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 import launch_testing.actions
 from nav_msgs.msg import Odometry
@@ -33,6 +31,10 @@ import rclpy
 from rclpy.parameter import Parameter
 from sensor_msgs.msg import JointState
 from tf2_msgs.msg import TFMessage
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from sim_test_support import gazebo_unavailable, NothingLeftBehind, \
+    partition_actions, sim_launch_file  # noqa: E402, I100
 
 CONTROLLERS = {'joint_state_publisher', 'pilsbot_velocity_controller'}
 COMMAND_TOPIC = '/pilsbot_velocity_controller/cmd_vel'
@@ -46,37 +48,15 @@ STEERING_AUTHORITY = 1.0
 ACTIVE_TIMEOUT = 300.0
 MOTION_TIMEOUT = 180.0
 
-# Keeps this run's Gazebo transport apart from any other Gazebo on the machine
-# (ROS_DOMAIN_ID is isolated by the CMake test runner), and finds this run's
-# processes after the launch.
-PARTITION = f'pilsbot_sim_test_{os.getpid()}'
-
-
-def gazebo_unavailable():
-    """Why this machine cannot run the test, or None."""
-    if os.environ.get('PILSBOT_SKIP_GAZEBO_TESTS', '') not in ('', '0'):
-        return 'PILSBOT_SKIP_GAZEBO_TESTS is set'
-    if shutil.which('ign') is None:
-        return 'Gazebo Fortress (ign) is not installed'
-    for package in ['ros_gz_sim', 'ros_gz_bridge', 'gz_ros2_control']:
-        try:
-            get_package_share_directory(package)
-        except PackageNotFoundError:
-            return f'{package} is not installed'
-    return None
-
 
 @unittest.skipIf(gazebo_unavailable() is not None, gazebo_unavailable())
 @pytest.mark.launch_test
 def generate_test_description():
-    sim_launch = Path(get_package_share_directory('pilsbot_simulation')) / 'launch' / \
-        'sim.launch.py'
-    return LaunchDescription([
-        SetEnvironmentVariable('IGN_PARTITION', PARTITION),
-        SetEnvironmentVariable('GZ_PARTITION', PARTITION),
+    return LaunchDescription(partition_actions() + [
         IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(str(sim_launch)),
-            launch_arguments={'gui': 'false', 'foxglove': 'false'}.items()),
+            PythonLaunchDescriptionSource(str(sim_launch_file())),
+            launch_arguments={'gui': 'false', 'foxglove': 'false',
+                              'cameras': 'false'}.items()),
         launch_testing.actions.ReadyToTest(),
     ])
 
@@ -202,61 +182,6 @@ class TestSimDrive(unittest.TestCase):
                                  f'{self.steering:.3f} rad, commanded 0.4')
 
 
-def processes_in_partition():
-    """Pids of the processes started with this run's IGN_PARTITION."""
-    marker = f'IGN_PARTITION={PARTITION}'.encode()
-    found = []
-    for entry in Path('/proc').iterdir():
-        if not entry.name.isdigit() or int(entry.name) == os.getpid():
-            continue
-        try:
-            if marker in (entry / 'environ').read_bytes().split(b'\0'):
-                found.append(int(entry.name))
-        except OSError:
-            pass  # gone, or not ours
-    return found
-
-
-def stop_processes(pids):
-    for pid in pids:
-        try:
-            os.kill(pid, signal.SIGTERM)
-        except ProcessLookupError:
-            pass
-    deadline = time.monotonic() + 10.0
-    while processes_in_partition() and time.monotonic() < deadline:
-        time.sleep(0.2)
-    for pid in processes_in_partition():
-        try:
-            os.kill(pid, signal.SIGKILL)
-        except ProcessLookupError:
-            pass
-
-
 @launch_testing.post_shutdown_test()
-class TestNothingLeftBehind(unittest.TestCase):
-
-    def tearDown(self):
-        # Cleanup, not a check: whatever the test below finds is stopped, so
-        # a failed run does not leave a gz server running on the machine.
-        stop_processes(processes_in_partition())
-
-    def test_the_launch_stopped_all_its_processes(self):
-        # launch_testing ends the run with a signal to the launch's processes
-        # only, as systemd or `kill <pid>` would, not to the process group.
-        # The gz server must stop with them (sim.launch.py execs it). A few
-        # seconds' grace for anything a launched process forked.
-        deadline = time.monotonic() + 5.0
-        while processes_in_partition() and time.monotonic() < deadline:
-            time.sleep(0.2)
-        leftovers = processes_in_partition()
-        self.assertEqual(leftovers, [], 'processes still running after the launch ended: ' +
-                         ', '.join(f'{pid} {command_line(pid)}' for pid in leftovers))
-
-
-def command_line(pid):
-    try:
-        return (Path('/proc') / str(pid) / 'cmdline').read_bytes() \
-            .replace(b'\0', b' ').decode(errors='replace').strip()
-    except OSError:
-        return '(gone)'
+class TestNothingLeftBehind(NothingLeftBehind, unittest.TestCase):
+    pass

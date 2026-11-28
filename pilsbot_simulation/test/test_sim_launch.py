@@ -187,16 +187,85 @@ def test_spawn_pose_comes_from_the_arguments():
         ['1.5', '-2', '0.1', '1.57']
 
 
-# --- Bridge -------------------------------------------------------------------
+# --- Bridges and cameras -------------------------------------------------------
 
-def test_bridges_from_the_package_config_on_sim_time():
-    context, actions = expand()
+# The robot's image topics, and the compressed transport the robot offers on
+# each besides raw. Depth is 32FC1 in the sim: compressed (JPEG/PNG) fails on
+# every frame, compressedDepth works (pilsbot/pilsbot_simulation#4).
+IMAGE_TRANSPORTS = {
+    '/camera/color/image_raw': 'compressed',
+    '/camera/left/image_rect': 'compressed',
+    '/camera/right/image_rect': 'compressed',
+    '/camera/stereo/depth': 'compressedDepth',
+    '/front_camera/image_raw': 'compressed',
+}
+
+
+@pytest.mark.parametrize('cameras, config', [('true', 'bridge.yaml'),
+                                             ('false', 'bridge_no_cameras.yaml')])
+def test_bridges_from_the_package_config_on_sim_time(cameras, config):
+    context, actions = expand(cameras=cameras)
 
     [bridge] = nodes(actions, 'parameter_bridge')
     parameters = node_parameters(context, bridge)
-    assert Path(parameters['config_file']).name == 'bridge.yaml'
+    assert Path(parameters['config_file']).name == config
     assert Path(parameters['config_file']).parent.name == 'config'
     assert parameters['use_sim_time'] is True
+
+
+def test_cameras_are_on_by_default():
+    context, actions = expand()
+
+    assert includes(context, actions)['pilsbot_bringup']['cameras'] == 'true'
+    assert len(nodes(actions, 'image_bridge')) == 1
+
+
+def test_image_bridge_bridges_the_robots_image_topics_on_sim_time():
+    context, actions = expand(cameras='true')
+
+    [image_bridge] = nodes(actions, 'image_bridge')
+    assert sorted(node_arguments(context, image_bridge)) == sorted(IMAGE_TRANSPORTS)
+    assert node_parameters(context, image_bridge)['use_sim_time'] is True
+
+
+def test_each_image_gets_raw_and_the_robots_compressed_transport_only():
+    # image_transport's <topic>.enable_pub_plugins (topic without the leading
+    # slash, dots for slashes). Without it every installed plugin publishes,
+    # and /camera/stereo/depth/compressed logs an error per frame.
+    context, actions = expand(cameras='true')
+
+    [image_bridge] = nodes(actions, 'image_bridge')
+    parameters = node_parameters(context, image_bridge)
+    for topic, transport in IMAGE_TRANSPORTS.items():
+        plugins = parameters[topic[1:].replace('/', '.') + '.enable_pub_plugins']
+        assert sorted(plugins) == sorted(['image_transport/raw', f'image_transport/{transport}'])
+
+
+def test_the_camera_info_relay_runs_on_sim_time_with_the_cameras():
+    context, actions = expand(cameras='true')
+
+    [relay] = nodes(actions, 'camera_info_relay.py')
+    assert relay.node_package == 'pilsbot_simulation'
+    assert node_parameters(context, relay)['use_sim_time'] is True
+
+
+def test_without_cameras_no_image_bridge_and_no_relay_start():
+    _, actions = expand(cameras='false')
+
+    assert nodes(actions, 'image_bridge') == []
+    assert nodes(actions, 'camera_info_relay.py') == []
+
+
+def test_cameras_reaches_bringup():
+    context, actions = expand(cameras='false')
+
+    assert includes(context, actions)['pilsbot_bringup']['cameras'] == 'false'
+
+
+@pytest.mark.parametrize('value', ['', 'False', 'no'])
+def test_an_unknown_cameras_value_fails_the_launch(value):
+    with pytest.raises(RuntimeError, match='"cameras"'):
+        expand(cameras=value)
 
 
 # --- The robot's stack --------------------------------------------------------
@@ -205,7 +274,8 @@ def test_starts_the_robot_stack_through_bringup_with_gazebo_hardware_and_sim_tim
     context, actions = expand()
 
     assert includes(context, actions)['pilsbot_bringup'] == {
-        'hardware': 'gazebo', 'use_sim_time': 'true', 'robot_profile': 'pilsbot'}
+        'hardware': 'gazebo', 'use_sim_time': 'true', 'robot_profile': 'pilsbot',
+        'cameras': 'true'}
 
 
 def test_robot_profile_reaches_bringup():
@@ -215,11 +285,14 @@ def test_robot_profile_reaches_bringup():
         '/profiles/other.yaml'
 
 
-def test_starts_nothing_the_robot_stack_starts_itself():
+@pytest.mark.parametrize('cameras, sim_nodes', [
+    ('true', {'create', 'parameter_bridge', 'image_bridge', 'camera_info_relay.py'}),
+    ('false', {'create', 'parameter_bridge'})])
+def test_starts_nothing_the_robot_stack_starts_itself(cameras, sim_nodes):
     # robot_state_publisher, the controller manager, the spawners and the
     # activator come from bringup, as on the robot.
-    _, actions = expand()
+    context, actions = expand(cameras=cameras)
 
     started = {a.node_executable for a in actions if isinstance(a, Node)}
-    assert started == {'create', 'parameter_bridge'}
-    assert set(includes(*expand())) == {'ros_gz_sim', 'pilsbot_bringup'}
+    assert started == sim_nodes
+    assert set(includes(context, actions)) == {'ros_gz_sim', 'pilsbot_bringup'}
