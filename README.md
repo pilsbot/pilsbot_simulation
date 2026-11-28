@@ -59,7 +59,9 @@ The same as on the robot: `odom` → `base_footprint` from the controller, `/joi
 | `/camera/stereo/depth` (+ `/compressedDepth`), `/camera/stereo/camera_info` | `oak_left_camera_optical_frame` | OAK depth, 32FC1 in m (the robot: 16UC1 in mm) |
 | `/front_camera/image_raw` (+ `/compressed`), `/front_camera/camera_info` | `front_camera_optical_frame` | CSI front camera, rgb8 1280×720, no distortion |
 
-Each image has raw and one compressed transport: `compressed`, as on the robot, except depth, which has `compressedDepth`: JPEG/PNG cannot carry the sim's 32FC1 (`/camera/stereo/depth/compressed` would log an error per frame).
+Each image has raw and exactly one compressed transport (`sim.launch.py` sets image_transport's `enable_pub_plugins`):
+- `compressed` on the colour, mono and CSI images. The robot's OAK-D has the same three `/compressed` topics; its CSI camera publishes every installed image_transport plugin, so the sim leaves out `theora` and `compressedDepth` there.
+- `compressedDepth` on depth: JPEG/PNG cannot carry the sim's 32FC1 (`/camera/stereo/depth/compressed` would log an error per frame). The robot has no compressed depth topic.
 
 Not bridged: Gazebo's own depth point cloud. Its data are in the sensor link's x-forward convention while its header names the optical frame (pilsbot/pilsbot_simulation#4); point clouds come from `depth_image_proc` or `stereo_image_proc` on the topics above.
 

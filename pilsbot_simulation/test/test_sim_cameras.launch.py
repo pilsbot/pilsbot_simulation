@@ -1,9 +1,9 @@
 # Headless end-to-end test of the camera topics, run twice:
 #
 # - cameras:=true: every image topic of the robot publishes raw, its
-#   compressed transport and camera_info, in the image's optical frame, and
-#   the stereo pair's camera_info carries the baseline stereo_image_proc
-#   needs. Gazebo's own point cloud is not on ROS.
+#   compressed transport (and no other) and camera_info, in the image's
+#   optical frame, and the stereo pair's camera_info carries the baseline
+#   stereo_image_proc needs. Gazebo's own point cloud is not on ROS.
 # - cameras:=false: no camera topic exists once the controllers are up.
 #
 # Needs Gazebo Fortress (ign), ros_gz and gz_ros2_control and takes a few
@@ -116,6 +116,11 @@ class TestCameraTopics(unittest.TestCase):
     def publishers(self, topic):
         return self.node.count_publishers(topic)
 
+    def published_topics(self):
+        # Topics this test subscribes to exist without a publisher.
+        return {name for name, _ in self.node.get_topic_names_and_types()
+                if self.publishers(name) > 0}
+
     def test_1_every_camera_topic_publishes_with_the_cameras(self, cameras):
         if cameras != 'true':
             self.skipTest('cameras:=false')
@@ -148,17 +153,26 @@ class TestCameraTopics(unittest.TestCase):
         self.assertAlmostEqual(right.p[3], -right.p[0] * BASELINE, delta=1e-3 * right.p[0])
         self.assertEqual(depth.p[3], 0.0)
 
-    def test_4_gazebos_point_cloud_and_depth_jpeg_are_not_published(self, cameras):
-        # Gazebo's cloud is x-forward data under an optical-frame header;
-        # JPEG/PNG of 32FC1 depth fails on every frame.
+    def test_4_gazebos_point_cloud_is_not_published(self, cameras):
+        # Gazebo's cloud is x-forward data under an optical-frame header.
         if cameras != 'true':
             self.skipTest('cameras:=false')
-        for topic in ['/camera/stereo/points', '/camera/stereo/depth/points',
-                      '/camera/stereo/depth/compressed']:
+        for topic in ['/camera/stereo/points', '/camera/stereo/depth/points']:
             with self.subTest(topic=topic):
                 self.assertEqual(self.publishers(topic), 0)
 
-    def test_5_without_cameras_no_camera_topic_exists(self, cameras):
+    def test_5_each_image_offers_only_its_compressed_transport(self, cameras):
+        # No theora, no compressedDepth beside colour/mono images, and no
+        # /compressed beside depth: JPEG/PNG of 32FC1 fails on every frame.
+        if cameras != 'true':
+            self.skipTest('cameras:=false')
+        published = self.published_topics()
+        for topic, (_, transport) in IMAGES.items():
+            with self.subTest(topic=topic):
+                self.assertEqual(sorted(t for t in published if t.startswith(f'{topic}/')),
+                                 [f'{topic}/{transport}'])
+
+    def test_6_without_cameras_no_camera_topic_exists(self, cameras):
         if cameras != 'false':
             self.skipTest('cameras:=true')
         # The robot is in Gazebo once its controllers publish.
@@ -167,9 +181,7 @@ class TestCameraTopics(unittest.TestCase):
         self.spin_until(lambda: False, QUIET_TIME)
 
         self.assertEqual(sorted(self.received), [])
-        # Topics this test subscribes to exist without a publisher.
-        published = {name for name, _ in self.node.get_topic_names_and_types()
-                     if self.publishers(name) > 0}
+        published = self.published_topics()
         self.assertEqual(sorted(t for t in published if 'camera' in t), [])
 
 
