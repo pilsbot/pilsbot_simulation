@@ -32,6 +32,12 @@ if(BUILD_TESTING)
     RUNNER "${ament_cmake_ros_DIR}/run_test_isolated.py"
     TIMEOUT 900
     LABELS "launch_test;gazebo")
+  # world:=citysim_block. Opt-in (PILSBOT_CITYSIM_TESTS=1): it needs
+  # citysim's Fuel models. Label "citysim": `--ctest-args -L citysim`.
+  add_launch_test(test/test_sim_citysim.launch.py
+    RUNNER "${ament_cmake_ros_DIR}/run_test_isolated.py"
+    TIMEOUT 1200
+    LABELS "launch_test;gazebo;citysim")
 endif()
 
 install(DIRECTORY launch worlds config

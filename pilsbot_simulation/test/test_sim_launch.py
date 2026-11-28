@@ -6,6 +6,8 @@ from pathlib import Path
 import re
 import shlex
 
+import ament_index_python.packages
+from ament_index_python.packages import get_package_share_directory, PackageNotFoundError
 from launch import LaunchContext
 from launch.actions import DeclareLaunchArgument, GroupAction, IncludeLaunchDescription, \
     OpaqueFunction, PopLaunchConfigurations, PushLaunchConfigurations, SetLaunchConfiguration
@@ -109,8 +111,61 @@ def test_starts_gazebo_running_with_the_flat_world_by_default():
     assert Path(args[-1]).parent.name == 'worlds'
 
 
+@pytest.mark.parametrize('world, package, sdf', [
+    ('flat', 'pilsbot_simulation', 'flat.sdf'),
+    ('citysim', 'citysim', 'simple_city.sdf'),
+    ('citysim_block', 'citysim', 'simple_city_block.sdf')])
+def test_world_names_resolve_to_installed_world_files(world, package, sdf):
+    # citysim: the full city; citysim_block: the cropped block around the
+    # spawn road (pilsbot/pilsbot_simulation#7).
+    path = Path(gz_args(world=world)[-1])
+
+    assert path == Path(get_package_share_directory(package)) / 'worlds' / sdf
+    assert path.is_file()
+
+
+@pytest.mark.parametrize('world', ['citysim', 'citysim_block'])
+def test_a_citysim_world_without_citysim_installed_fails_naming_world_and_package(
+        world, monkeypatch):
+    real_lookup = ament_index_python.packages.get_package_share_directory
+
+    def citysim_missing(package):
+        if package == 'citysim':
+            raise PackageNotFoundError(package)
+        return real_lookup(package)
+    # sim.launch.py imports the function when expand() loads it.
+    monkeypatch.setattr(ament_index_python.packages, 'get_package_share_directory',
+                        citysim_missing)
+
+    with pytest.raises(RuntimeError) as error:
+        expand(world=world)
+
+    message = str(error.value)
+    assert f'"{world}"' in message
+    assert 'citysim package' in message
+    assert 'not installed' in message
+
+
 def test_world_argument_replaces_the_world():
     assert gz_args(world='/somewhere/city.sdf')[-1] == '/somewhere/city.sdf'
+
+
+@pytest.mark.parametrize('world', ['city.sdf', 'worlds/city.sdf', './city', 'old.world'])
+def test_a_relative_path_or_a_file_name_reaches_gazebo_unchanged(world):
+    # Gazebo looks a bare file name up on its resource path.
+    assert gz_args(world=world)[-1] == world
+
+
+@pytest.mark.parametrize('world', ['city', 'Citysim', 'flat_ground', 'citysim-block'])
+def test_an_unknown_world_name_fails_with_the_names_it_knows(world):
+    with pytest.raises(RuntimeError) as error:
+        expand(world=world)
+
+    message = str(error.value)
+    assert f'"{world}"' in message
+    for known in ['flat', 'citysim', 'citysim_block']:
+        assert known in message
+    assert 'path' in message
 
 
 @pytest.mark.parametrize('world', ['/my worlds/city.sdf', "/w/it's;$(rm -rf x)&.sdf"])
@@ -178,6 +233,13 @@ def test_spawns_pilsbot_from_robot_description_at_the_origin_by_default():
     assert pose == {'-x': 0.0, '-y': 0.0, '-z': pytest.approx(0.02), '-Y': 0.0}
 
 
+def spawn_pose(**arguments):
+    context, actions = expand(**arguments)
+    [create] = nodes(actions, 'create')
+    arguments = node_arguments(context, create)
+    return [float(arguments[arguments.index(flag) + 1]) for flag in ['-x', '-y', '-z', '-Y']]
+
+
 def test_spawn_pose_comes_from_the_arguments():
     context, actions = expand(x='1.5', y='-2', z='0.1', yaw='1.57')
 
@@ -185,6 +247,23 @@ def test_spawn_pose_comes_from_the_arguments():
     arguments = node_arguments(context, create)
     assert [arguments[arguments.index(flag) + 1] for flag in ['-x', '-y', '-z', '-Y']] == \
         ['1.5', '-2', '0.1', '1.57']
+
+
+@pytest.mark.parametrize('world', ['citysim', 'citysim_block'])
+def test_in_citysim_the_robot_spawns_on_a_road_by_default(world):
+    # road_x_3, right lane, heading along the road; street level is 5.01 m
+    # (citysim's README), 2 cm above it as on the flat world.
+    assert spawn_pose(world=world) == [-35.0, -1.8, pytest.approx(5.03), 0.0]
+
+
+def test_on_a_world_path_the_robot_spawns_at_the_origin_as_on_the_flat_world():
+    # flat's spawn point: test_spawns_pilsbot_from_robot_description_at_the_origin_by_default.
+    assert spawn_pose(world='/somewhere/city.sdf') == [0.0, 0.0, pytest.approx(0.02), 0.0]
+
+
+def test_a_spawn_argument_overrides_the_worlds_default_alone():
+    assert spawn_pose(world='citysim', x='-20', yaw='3.14') == \
+        [-20.0, -1.8, pytest.approx(5.03), pytest.approx(3.14)]
 
 
 # --- Bridges and cameras -------------------------------------------------------

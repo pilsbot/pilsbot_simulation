@@ -1,12 +1,12 @@
 # pilsbot_simulation
 
-Pilsbot in **Gazebo Fortress**, driven by the robot's own stack. `sim.launch.py` starts `gz sim` with a world, spawns the robot from `robot_description`, bridges `/clock` and the cameras to ROS (images through `ros_gz_image`, so each has a compressed transport beside it), and starts `pilsbot_bringup`'s `pilsbot.launch.py` with `hardware:=gazebo use_sim_time:=true`. That is the same launch code as on the robot: robot_state_publisher, the spawners (`--inactive`) and the hardware activator, teleop and foxglove_bridge. The controller manager runs inside Gazebo's `gz_ros2_control` plugin and loads the real `acker_diff_controller.yaml` with the robot profile's geometry. The steering pivot is free, so the robot steers passively by the difference in front wheel speeds, as on the robot. GNSS and lighting are not started.
+Pilsbot in **Gazebo Fortress**, driven by the robot's own stack. `sim.launch.py` starts `gz sim` with a world (flat ground, or [citysim](https://github.com/pilsbot/citysim)'s city), spawns the robot from `robot_description`, bridges `/clock` and the cameras to ROS (images through `ros_gz_image`, so each has a compressed transport beside it), and starts `pilsbot_bringup`'s `pilsbot.launch.py` with `hardware:=gazebo use_sim_time:=true`. That is the same launch code as on the robot: robot_state_publisher, the spawners (`--inactive`) and the hardware activator, teleop and foxglove_bridge. The controller manager runs inside Gazebo's `gz_ros2_control` plugin and loads the real `acker_diff_controller.yaml` with the robot profile's geometry. The steering pivot is free, so the robot steers passively by the difference in front wheel speeds, as on the robot. GNSS and lighting are not started.
 
 Gazebo Classic is not supported.
 
 ## Requirements
 
-Gazebo Fortress with `ros-humble-ros-gz`, `ros-humble-gz-ros2-control` and `ros-humble-image-transport-plugins` (apt), and the Humble Pilsbot stack (`pilsbot_bringup`, `pilsbot_hw_ros`, `pils_control`, `pilsbot_description`, `teleop_acker_joy`). `colcon build --packages-up-to pilsbot_simulation` builds the Pilsbot packages it needs, `pilsbot_driver` included.
+Gazebo Fortress with `ros-humble-ros-gz`, `ros-humble-gz-ros2-control` and `ros-humble-image-transport-plugins` (apt), and the Humble Pilsbot stack (`pilsbot_bringup`, `pilsbot_hw_ros`, `pils_control`, `pilsbot_description`, `teleop_acker_joy`) with `citysim` (its `humble` branch). `colcon build --packages-up-to pilsbot_simulation` builds the Pilsbot packages it needs, `pilsbot_driver` and `citysim` included.
 
 ## Run
 
@@ -14,6 +14,7 @@ Gazebo Fortress with `ros-humble-ros-gz`, `ros-humble-gz-ros2-control` and `ros-
 ros2 launch pilsbot_simulation sim.launch.py              # with the Gazebo GUI
 ros2 launch pilsbot_simulation sim.launch.py gui:=false   # server only, cameras render headless
 ros2 launch pilsbot_simulation sim.launch.py cameras:=false   # no camera sensors: faster, for control work
+ros2 launch pilsbot_simulation sim.launch.py world:=citysim   # the city, the robot on a road
 ```
 
 Stop it with Ctrl-C, or with a signal to the `ros2 launch` process alone (`kill <pid>`, systemd): Gazebo runs as `exec`, so it gets launch's signal and stops with the rest.
@@ -22,13 +23,28 @@ The controllers become active a few seconds of sim time after the launch (the ha
 
 | argument | default | |
 |---|---|---|
-| `world` | `worlds/flat.sdf` | SDF world file |
+| `world` | `flat` | `flat`, `citysim`, `citysim_block` or a path to an SDF file (see [Worlds](#worlds)) |
 | `gui` | `true` | `false`: no GUI, `gz sim -s --headless-rendering` |
 | `robot_profile` | `pilsbot` | profile name shipped with `pilsbot_description`, or a path |
-| `x`, `y`, `z`, `yaw` | `0`, `0`, `0.02`, `0` | spawn pose [m, rad] |
+| `x`, `y`, `z`, `yaw` | the world's spawn point | spawn pose [m, rad]; each one given overrides the world's value alone |
 | `cameras` | `true` | `false`: no camera sensors in the URDF (passed through bringup to xacro), no camera topics; nothing renders |
 
 Arguments of `pilsbot_bringup` and the driver launch files pass through, e.g. `foxglove:=false` or `joystick_device_name:=...`.
+
+### Worlds
+
+| `world` | SDF | spawn point (`x`, `y`, `z`, `yaw`) | |
+|---|---|---|---|
+| `flat` (default) | `worlds/flat.sdf` | `0`, `0`, `0.02`, `0` | flat ground: tests and control work |
+| `citysim` | citysim's `worlds/simple_city.sdf` | `-35`, `-1.8`, `5.03`, `0` | the full city: streets, houses, trees, parked cars, walking people |
+| `citysim_block` | citysim's `worlds/simple_city_block.sdf` | `-35`, `-1.8`, `5.03`, `0` | a block of the city around the spawn road, for perception and mapping |
+| a path, e.g. `/home/me/my.sdf` | that file | `0`, `0`, `0.02`, `0` | a value with a `/` or ending in `.sdf` or `.world`; a bare file name is looked up on Gazebo's resource path |
+
+Any other name fails the launch with the list of names. In both citysim worlds the robot spawns on `road_x_3` in the right lane, heading along the road (+x), 2 cm above the street (street level is 5.01 m).
+
+citysim is slower than the flat world: with the cameras on, the full city runs at about 0.2 of real time on a laptop, the block at about 0.23; the controllers become active within about a minute of the launch (35–70 s measured in the full city). `cameras:=false` makes either faster when no images are needed.
+
+**First launch of citysim:** its 54 external models (buildings, trees, cars, street furniture) come from [Gazebo Fuel](https://app.gazebosim.org/OpenRobotics) and are downloaded to `~/.ignition/fuel` on first use: about 110 MB, two minutes, during which Gazebo shows no world yet and the robot is not spawned. Later launches load from that cache (about 20 s for the full city). Without a network, the models are not in the cache and the city cannot load.
 
 ### With a gamepad
 
@@ -80,10 +96,9 @@ colcon test --packages-select pilsbot_simulation
 The launch tests run the simulation headless and take up to a few minutes each. After each launch has ended, no process of the run may be left (the run has its own `IGN_PARTITION`).
 
 - `test_sim_drive.launch.py` (`cameras:=false`): both controllers become active, a forward command moves `odom` forward, and a steering command turns `steering_axle_joint`.
+- `test_sim_citysim.launch.py` (`world:=citysim_block cameras:=false`), **opt-in**: runs only with `PILSBOT_CITYSIM_TESTS=1`, since it needs citysim's Fuel models (downloaded on its first run). The robot stands on the street at its spawn point once the controllers are up, and drives 1 m along the road without leaving its lane. `colcon test --packages-select pilsbot_simulation --ctest-args -L citysim` with `PILSBOT_CITYSIM_TESTS=1` runs it alone.
 - `test_sim_cameras.launch.py`, run twice: with `cameras:=true` every image topic, its compressed transport and its `camera_info` publish in the camera's optical frame, the stereo pair carries the baseline, and neither Gazebo's point cloud nor depth `/compressed` exists; with `cameras:=false` no camera topic exists.
 
 They skip themselves when Gazebo Fortress, `ros_gz` (`ros_gz_sim`, `ros_gz_bridge`, `ros_gz_image`) or `gz_ros2_control` is missing, or with `PILSBOT_SKIP_GAZEBO_TESTS=1`; `colcon test --packages-select pilsbot_simulation --ctest-args -LE gazebo` leaves them out.
 
-## rtabmap_test.launch.py
-
-Left over from Foxy and not yet adapted to the Fortress topics; milestone 2 (perception) fixes it.
+Mapping (rtabmap) is `pilsbot_navigation`'s `mapping.launch.py` (pilsbot/pilsbot_navigation#2, not written yet); the old `rtabmap_test.launch.py` is gone.
