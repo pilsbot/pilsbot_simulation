@@ -11,11 +11,14 @@ runs inside Gazebo's gz_ros2_control plugin.
 Arguments of pilsbot_bringup (e.g. foxglove:=false) pass through.
 """
 
+import os
 import shlex
+
+from ament_index_python.packages import get_package_share_directory
 
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, GroupAction, IncludeLaunchDescription, \
-    OpaqueFunction, SetLaunchConfiguration
+    OpaqueFunction, SetEnvironmentVariable, SetLaunchConfiguration
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
@@ -41,15 +44,38 @@ def generate_launch_description():
             'z', default_value='0.02',
             description='Spawn height [m]: just above the ground.'),
         DeclareLaunchArgument('yaw', default_value='0.0', description='Spawn heading [rad]'),
+        # SPIKE (pilsbot_simulation#4)
+        DeclareLaunchArgument(
+            'cameras', default_value='true', choices=['true', 'false'],
+            description='SPIKE: false leaves the camera sensors out (PILSBOT_SIM_CAMERAS).'),
+        DeclareLaunchArgument(
+            'images', default_value='parameter_bridge',
+            choices=['parameter_bridge', 'image_bridge'],
+            description='SPIKE: bridge the images with parameter_bridge (M1) or '
+                        'ros_gz_image image_bridge (image_transport, /compressed).'),
         OpaqueFunction(function=launch_setup),
     ])
 
 
+IMAGE_TOPICS = ['/camera/color/image_raw', '/camera/left/image_rect',
+                '/camera/right/image_rect', '/camera/stereo/depth', '/front_camera/image_raw']
+
+
 def launch_setup(context):
+    world = LaunchConfiguration('world').perform(context)
+    if world == 'citysim':
+        world = os.path.join(get_package_share_directory('citysim'), 'worlds', 'simple_city.sdf')
+    elif world == 'citysim_block':
+        world = os.path.join(get_package_share_directory('citysim'), 'worlds',
+                             'simple_city_block.sdf')
+    elif world == 'frame_test':
+        world = os.path.join(get_package_share_directory('pilsbot_simulation'), 'worlds',
+                             'frame_test.sdf')
+    image_bridge = LaunchConfiguration('images').perform(context) == 'image_bridge'
     gz_args = ['-r', '-v', '3']
     if LaunchConfiguration('gui').perform(context) == 'false':
         gz_args = ['-s', '--headless-rendering'] + gz_args
-    gz_args.append(LaunchConfiguration('world').perform(context))
+    gz_args.append(world)
 
     # ros_gz_sim runs `ruby ign gazebo <gz_args>` through a shell (shell=True):
     # quote the arguments, and exec, so that the shell is replaced by Gazebo.
@@ -79,7 +105,8 @@ def launch_setup(context):
         package='ros_gz_bridge', executable='parameter_bridge', output='screen',
         parameters=[{
             'config_file': PathJoinSubstitution(
-                [FindPackageShare('pilsbot_simulation'), 'config', 'bridge.yaml']),
+                [FindPackageShare('pilsbot_simulation'), 'config',
+                 'bridge_no_images.yaml' if image_bridge else 'bridge.yaml']),
             'use_sim_time': True,
         }])
 
@@ -92,4 +119,10 @@ def launch_setup(context):
             'robot_profile': LaunchConfiguration('robot_profile'),
         }.items())
 
-    return [gazebo, spawn, bridge, robot]
+    actions = [SetEnvironmentVariable('PILSBOT_SIM_CAMERAS', LaunchConfiguration('cameras')),
+               gazebo, spawn, bridge, robot]
+    if image_bridge:
+        actions.append(Node(
+            package='ros_gz_image', executable='image_bridge', output='screen',
+            arguments=IMAGE_TOPICS, parameters=[{'use_sim_time': True}]))
+    return actions

@@ -1,0 +1,33 @@
+SPIKE pilsbot_simulation#4 -- raw measurements (laptop: i7-6500U 4 threads, HD 520, 16 GB)
+RTF = sim-time delta / wall-time delta of /stats over a 45-60 s window (tools: /tmp/pb2/runs/rtf.sh)
+
+world                              step  cameras  images            RTF    loadavg (1 min, start/end)
+citysim full (simple_city.sdf)     2 ms  on       parameter_bridge  0.181  2.80 / 2.74
+citysim full, sun shadows off      2 ms  on       parameter_bridge  0.195  2.07 / 1.78
+  same run, ROS bridge killed      2 ms  on       none              0.245  2.08 / 1.68
+citysim full                       4 ms  on       parameter_bridge  0.198  1.88 / 2.29
+citysim full                       2 ms  off      parameter_bridge  0.247  1.52 / 1.42
+citysim block (crop -60..30, -30..30) 1 ms on     parameter_bridge  0.230 / 0.234  2.09 / 3.11, 2.94 / 3.10
+citysim block                      1 ms  on       image_bridge      0.229  2.90 / 3.34
+Server only (no robot, no sensors), probe.sh:
+citysim full, scenery dynamic as on Fuel   1 ms   0.006
+citysim full, all scenery static           1 ms   0.136
+citysim full, all scenery static           2 ms   0.300
+citysim full, all scenery static           4 ms   0.585
+citysim full, static, no scenery collisions (upper bound for collision proxies) 1 ms 0.37
+only the 24 non-static Fuel models (cinder blocks, cones, barrel, dumpsters, boxes, person)  1 ms  0.017
+only trees (252 pine/oak)                  1 ms   0.42  (0.84 without their collisions)
+
+Load time with warm Fuel cache: /stats flowing 22.6 s after start (full city, server only), 638 models.
+Fuel: first launch downloaded 53 models in ~119 s; 4 nested dependencies (stop light, 2 jersey barriers,
+blue cylinder) later; cache fuel.gazebosim.org/openrobotics: 57 models, 108.9 MB (standing person 28 MB).
+
+Bridge CPU (% of one core, 30 s window, block world, RTF ~0.23):
+parameter_bridge with images, no subscribers: 21 %
+image_bridge (5 image topics), no subscribers: 13 %; with 4 /compressed subscribers: 24 %
+parameter_bridge without images (camera_info, clock, gz points): 15 %
+
+Drive (scripted AckermannDriveStamped on /pilsbot_velocity_controller/cmd_vel):
+full city 2 ms: spawn (-35, -1.8, 5.03) on road_x_3; 12 s at 1.0 m/s: odom 10.343 m, ground truth -35.000 -> -24.488 (10.512 m), y -1.800 -> -1.800, yaw 0.0
+  then 6 s at 0.8 m/s, steering +0.3: odom (12.217, -2.324), GT (-22.146, -2.984) yaw -62.8 deg (positive steering turns right, as in M1)
+full city 4 ms: 8 s at 1.0 m/s: odom 6.383 m, GT 6.563 m, y and yaw unchanged

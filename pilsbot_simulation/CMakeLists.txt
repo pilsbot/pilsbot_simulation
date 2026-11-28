@@ -26,7 +26,7 @@ if(BUILD_TESTING)
     LABELS "launch_test;gazebo")
 endif()
 
-install(DIRECTORY launch worlds config
+install(DIRECTORY launch worlds config scripts
   DESTINATION share/${PROJECT_NAME}/
 )
 

@@ -1,0 +1,15 @@
+cloud 640x400 frame_id=oak_left_camera_optical_frame stamp=88.902000000 valid=181941
+cloud 640x400 frame_id=oak_left_camera_optical_frame stamp=89.034000000 valid=181941
+cloud 640x400 frame_id=oak_left_camera_optical_frame stamp=89.166000000 valid=181941
+base_footprint <- oak_left_camera_optical_frame: t = (0.820 0.037 0.295)
+R =
+ [[ 0.  0.  1.]
+ [-1.  0.  0.]
+ [ 0. -1.  0.]]
+points: 545823, above ground (z>0.05, <8 m): 301464
+  x: p1 +0.525 p5 +0.525 median +0.525 p95 +1.360 p99 +1.490
+  y: p1 -6.212 p5 -3.206 median -1.461 p95 -0.639 p99 -0.611
+  z: p1 +0.060 p5 +0.099 median +0.543 p95 +1.886 p99 +3.478
+  in face y/z extent: 0; within 5 cm of x = 3.0: 0 (0.0 %)
+  verdict: median y -1.461 -> MIRRORED (box is at +y)
+ground points (x < 2.7): 177864, z median +0.0075 p5 -0.2647 p95 +0.2714

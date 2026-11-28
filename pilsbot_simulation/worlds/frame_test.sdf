@@ -1,0 +1,60 @@
+<?xml version="1.0" ?>
+<!-- SPIKE (pilsbot_simulation#4) frame test: flat ground and one textured
+     box at a known pose in front of the robot (spawned at the origin,
+     heading +x). The box's front face is the plane x = 3.0 in the world
+     (= base_footprint at spawn), y in [-0.5, 1.5], z in [0, 1]: off-centre
+     and wider to the left, so a mirrored or rotated cloud is obvious. The
+     random texture gives stereo matching something to match. -->
+<sdf version="1.8">
+  <world name="frame_test">
+    <physics name="1ms" type="ignored">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+    </physics>
+    <plugin filename="ignition-gazebo-physics-system" name="ignition::gazebo::systems::Physics"/>
+    <plugin filename="ignition-gazebo-user-commands-system" name="ignition::gazebo::systems::UserCommands"/>
+    <plugin filename="ignition-gazebo-scene-broadcaster-system" name="ignition::gazebo::systems::SceneBroadcaster"/>
+    <plugin filename="ignition-gazebo-sensors-system" name="ignition::gazebo::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+    <light type="directional" name="sun">
+      <cast_shadows>false</cast_shadows>
+      <pose>0 0 10 0 0 0</pose>
+      <diffuse>0.9 0.9 0.9 1</diffuse>
+      <specular>0.1 0.1 0.1 1</specular>
+      <direction>-0.3 0.2 -0.9</direction>
+    </light>
+    <model name="ground_plane">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><plane><normal>0 0 1</normal><size>100 100</size></plane></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><plane><normal>0 0 1</normal><size>100 100</size></plane></geometry>
+          <material><ambient>0.5 0.5 0.5 1</ambient><diffuse>0.5 0.5 0.5 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+    <model name="target_box">
+      <static>true</static>
+      <!-- 0.4 deep: centre x = 3.0 + 0.2 -->
+      <pose>3.2 0.5 0.5 0 0 0</pose>
+      <link name="link">
+        <collision name="c"><geometry><box><size>0.4 2 1</size></box></geometry></collision>
+        <visual name="v">
+          <geometry><box><size>0.4 2 1</size></box></geometry>
+          <material>
+            <diffuse>1 1 1 1</diffuse>
+            <ambient>1 1 1 1</ambient>
+            <pbr><metal>
+              <albedo_map>textures/stereo_noise.png</albedo_map>
+              <roughness>1.0</roughness>
+              <metalness>0.0</metalness>
+            </metal></pbr>
+          </material>
+        </visual>
+      </link>
+    </model>
+  </world>
+</sdf>

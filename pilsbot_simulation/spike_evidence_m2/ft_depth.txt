@@ -1,0 +1,17 @@
+cloud 640x400 frame_id=oak_left_camera_optical_frame stamp=85.668000000 valid=181941
+cloud 640x400 frame_id=oak_left_camera_optical_frame stamp=85.734000000 valid=181941
+cloud 640x400 frame_id=oak_left_camera_optical_frame stamp=85.800000000 valid=181941
+base_footprint <- oak_left_camera_optical_frame: t = (0.820 0.037 0.295)
+R =
+ [[ 0.  0.  1.]
+ [-1.  0.  0.]
+ [ 0. -1.  0.]]
+points: 545823, above ground (z>0.05, <8 m): 225666
+  x: p1 +3.000 p5 +3.000 median +3.000 p95 +3.000 p99 +3.000
+  y: p1 -0.480 p5 -0.399 median +0.502 p95 +1.403 p99 +1.483
+  z: p1 +0.059 p5 +0.099 median +0.526 p95 +0.953 p99 +0.993
+  in face y/z extent: 225666; within 5 cm of x = 3.0: 225666 (100.0 %)
+  x error on face: mean +0.0000 m, median +0.0000, std 0.0000, |err| p95 0.0000
+  face points extent: y [-0.495, +1.498] (box -0.5..+1.5), z [+0.054, +0.998] (box 0.0..1.0)
+  verdict: median y +0.502 -> box on the +y side as in the world
+ground points (x < 2.7): 253440, z median +0.0011 p5 +0.0008 p95 +0.0020

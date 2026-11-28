@@ -1,0 +1,12 @@
+== hz_cc.txt
+average rate: 6.519
+	min: 0.122s max: 0.180s std dev: 0.01403s window: 20
+== bw_cc.txt
+434.81 KB/s from 20 messages
+	Message size mean: 66.98 KB min: 66.97 KB max: 67.02 KB
+== hz_lc.txt
+average rate: 3.281
+	min: 0.270s max: 0.348s std dev: 0.02392s window: 20
+== hz_fc.txt
+average rate: 6.474
+	min: 0.080s max: 0.231s std dev: 0.05648s window: 20

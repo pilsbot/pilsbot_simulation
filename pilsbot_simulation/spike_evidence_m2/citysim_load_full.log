@@ -1,0 +1,102 @@
+[Err] [SystemPaths.cc:474] Could not resolve file [parking_garage_diffuse.jpg]
+[Err] [SystemPaths.cc:474] Could not resolve file [fountain_diffuse.jpg]
+[Err] [SystemPaths.cc:474] Could not resolve file [gazebo_diffuse.jpg]
+[Wrn] [OBJLoader.cc:91] Both `d` and `Tr` parameters defined for "Bus". Use the value of `d` for dissolve (line 8 in .mtl.)
+Both `d` and `Tr` parameters defined for "Wheels_01". Use the value of `d` for dissolve (line 22 in .mtl.)
+
+[Err] [SystemPaths.cc:474] Could not resolve file [bus.png]
+[Err] [SystemPaths.cc:379] Unable to find file with URI [model://suv/materials/textures/wheels_01.png]
+[Err] [SystemPaths.cc:474] Could not resolve file [model://suv/materials/textures/wheels_01.png]
+[Err] [Material.cc:164] Unable to find texture [model://suv/materials/textures/wheels_01.png] as a locally cached texture or in path [/home/johannes/.ignition/fuel/fuel.gazebosim.org/openrobotics/models/bus/3/meshes]
+[Wrn] [OBJLoader.cc:91] Both `d` and `Tr` parameters defined for "Firetruck_Body". Use the value of `d` for dissolve (line 8 in .mtl.)
+Both `d` and `Tr` parameters defined for "Firetruck_Axle". Use the value of `d` for dissolve (line 22 in .mtl.)
+Both `d` and `Tr` parameters defined for "Firetruck_Wheels". Use the value of `d` for dissolve (line 36 in .mtl.)
+
+[Err] [SystemPaths.cc:474] Could not resolve file [fire_truck.png]
+[Err] [SystemPaths.cc:379] Unable to find file with URI [model://suv/materials/textures/suv.png]
+[Err] [SystemPaths.cc:474] Could not resolve file [model://suv/materials/textures/suv.png]
+[Err] [Material.cc:164] Unable to find texture [model://suv/materials/textures/suv.png] as a locally cached texture or in path [/home/johannes/.ignition/fuel/fuel.gazebosim.org/openrobotics/models/fire truck/3/meshes]
+[Err] [SystemPaths.cc:379] Unable to find file with URI [model://suv/materials/textures/wheels_01.png]
+[Err] [SystemPaths.cc:474] Could not resolve file [model://suv/materials/textures/wheels_01.png]
+[Err] [Material.cc:164] Unable to find texture [model://suv/materials/textures/wheels_01.png] as a locally cached texture or in path [/home/johannes/.ignition/fuel/fuel.gazebosim.org/openrobotics/models/fire truck/3/meshes]
+[Err] [SystemPaths.cc:474] Could not resolve file [fire_hydrant_diffuse.png]
+[Err] [SystemPaths.cc:474] Could not resolve file [postbox_diffuse.jpg]
+[Wrn] [OBJLoader.cc:91] Both `d` and `Tr` parameters defined for "Ambulance". Use the value of `d` for dissolve (line 8 in .mtl.)
+Both `d` and `Tr` parameters defined for "Firetruck_Wheels". Use the value of `d` for dissolve (line 22 in .mtl.)
+
+[Err] [SystemPaths.cc:474] Could not resolve file [ambulance.png]
+[Wrn] [OBJLoader.cc:91] Both `d` and `Tr` parameters defined for "Hatchback". Use the value of `d` for dissolve (line 8 in .mtl.)
+Both `d` and `Tr` parameters defined for "Wheels3". Use the value of `d` for dissolve (line 22 in .mtl.)
+
+[Err] [SystemPaths.cc:474] Could not resolve file [hatchback.png]
+[Err] [SystemPaths.cc:474] Could not resolve file [../materials/textures/wheels3.png]
+[Err] [Material.cc:164] Unable to find texture [../materials/textures/wheels3.png] as a locally cached texture or in path [/home/johannes/.ignition/fuel/fuel.gazebosim.org/openrobotics/models/hatchback red/4/meshes]
+[Err] [SystemPaths.cc:474] Could not resolve file [apartment_diffuse.jpg]
+[Wrn] [OBJLoader.cc:91] Both `d` and `Tr` parameters defined for "SUV_Body". Use the value of `d` for dissolve (line 8 in .mtl.)
+Both `d` and `Tr` parameters defined for "SUV_Wheels". Use the value of `d` for dissolve (line 22 in .mtl.)
+
+[Err] [SystemPaths.cc:474] Could not resolve file [osrf_first_office_diffuse.jpg]
+[Err] [SystemPaths.cc:474] Could not resolve file [radio_tower_diffuse.jpg]
+[Wrn] [OBJLoader.cc:91] Both `d` and `Tr` parameters defined for "Hatchback". Use the value of `d` for dissolve (line 8 in .mtl.)
+Both `d` and `Tr` parameters defined for "Wheels3". Use the value of `d` for dissolve (line 22 in .mtl.)
+
+[Err] [SystemPaths.cc:474] Could not resolve file [hatchback.png]
+[Err] [SystemPaths.cc:379] Unable to find file with URI [model://hatchback/materials/textures/wheels3.png]
+[Err] [SystemPaths.cc:474] Could not resolve file [model://hatchback/materials/textures/wheels3.png]
+[Err] [Material.cc:164] Unable to find texture [model://hatchback/materials/textures/wheels3.png] as a locally cached texture or in path [/home/johannes/.ignition/fuel/fuel.gazebosim.org/openrobotics/models/hatchback/3/meshes]
+[Err] [SystemPaths.cc:474] Could not resolve file [school_diffuse.jpg]
+[Err] [SystemPaths.cc:474] Could not resolve file [post_office_diffuse.jpg]
+[Err] [SystemPaths.cc:474] Could not resolve file [rubble_diffuse.jpg]
+[Err] [SystemPaths.cc:474] Could not resolve file [collapsed_industrial_diffuse.jpg]
+[Err] [SystemPaths.cc:474] Could not resolve file [rough_concrete_diffuse.jpg]
+[Err] [SystemPaths.cc:474] Could not resolve file [reactor_diffuse.jpg]
+[Err] [SystemPaths.cc:474] Could not resolve file [crane_diffuse.jpg]
+[Err] [SystemPaths.cc:379] Unable to find file with URI [fuel.gazebosim.org/1.0/openrobotics/models/drc practice:// orange jersey barrier/3/files/meshes/jersey_barrier.dae]
+[Err] [SystemPaths.cc:379] Unable to find file with URI [fuel.gazebosim.org/1.0/openrobotics/models/drc practice:// white jersey barrier/3/files/meshes/jersey_barrier.dae]
+[Err] [SystemPaths.cc:474] Could not resolve file [truss_bridge_diffuse.jpg]
+[Wrn] [OBJLoader.cc:91] Both `d` and `Tr` parameters defined for "StopLight". Use the value of `d` for dissolve (line 8 in .mtl.)
+
+[Err] [SystemPaths.cc:474] Could not resolve file [stop_light.png]
+[Wrn] [OBJLoader.cc:91] Both `d` and `Tr` parameters defined for "StopLight". Use the value of `d` for dissolve (line 8 in .mtl.)
+
+[Err] [SystemPaths.cc:474] Could not resolve file [stop_light.png]
+[Wrn] [ColladaLoader.cc:1894] emission texture not supported
+[Wrn] [OBJLoader.cc:91] Both `d` and `Tr` parameters defined for "Hatchback". Use the value of `d` for dissolve (line 8 in .mtl.)
+Both `d` and `Tr` parameters defined for "Wheels3". Use the value of `d` for dissolve (line 22 in .mtl.)
+
+[Msg] Ignition Gazebo Server v6.18.0
+[Msg] Loading SDF world file[/tmp/pb2/install/share/citysim/worlds/simple_city.sdf].
+[Msg] Serving entity system service on [/entity/system/add]
+[Msg] Create service on [/world/citysim/create]
+[Msg] Remove service on [/world/citysim/remove]
+[Msg] Pose service on [/world/citysim/set_pose]
+[Msg] Pose service on [/world/citysim/set_pose_vector]
+[Msg] Light configuration service on [/world/citysim/light_config]
+[Msg] Physics service on [/world/citysim/set_physics]
+[Msg] SphericalCoordinates service on [/world/citysim/set_spherical_coordinates]
+[Msg] Enable collision service on [/world/citysim/enable_collision]
+[Msg] Disable collision service on [/world/citysim/disable_collision]
+[Msg] Material service on [/world/citysim/visual_config]
+[Msg] Material service on [/world/citysim/wheel_slip]
+[Msg] Loaded level [3]
+[Msg] Serving world controls on [/world/citysim/control], [/world/citysim/control/state] and [/world/citysim/playback/control]
+[Msg] Serving GUI information on [/world/citysim/gui/info]
+[Msg] World [citysim] initialized with [1ms] physics profile.
+[Msg] Serving world SDF generation service on [/world/citysim/generate_world_sdf]
+[Msg] Serving world names on [/gazebo/worlds]
+[Msg] Resource path add service on [/gazebo/resource_paths/add].
+[Msg] Resource path get service on [/gazebo/resource_paths/get].
+[Msg] Resource path resolve service on [/gazebo/resource_paths/resolve].
+[Msg] Resource paths published on [/gazebo/resource_paths].
+[Msg] Server control service on [/server_control].
+[Msg] Found no publishers on /stats, adding root stats topic
+[Msg] Found no publishers on /clock, adding root clock topic
+[Msg] Serving scene information on [/world/citysim/scene/info]
+[Msg] Serving graph information on [/world/citysim/scene/graph]
+[Msg] Serving full state on [/world/citysim/state]
+[Msg] Serving full state (async) on [/world/citysim/state_async]
+[Msg] Publishing scene information on [/world/citysim/scene/info]
+[Msg] Publishing entity deletions on [/world/citysim/scene/deletion]
+[Msg] Publishing state changes on [/world/citysim/state]
+[Msg] Publishing pose messages on [/world/citysim/pose/info]
+[Msg] Publishing dynamic pose messages on [/world/citysim/dynamic_pose/info]
