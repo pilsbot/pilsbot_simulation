@@ -9,6 +9,8 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
+  <exec_depend>compressed_depth_image_transport</exec_depend>
+  <exec_depend>compressed_image_transport</exec_depend>
   <exec_depend>gz_ros2_control</exec_depend>
   <exec_depend>launch</exec_depend>
   <exec_depend>launch_ros</exec_depend>
@@ -17,8 +19,12 @@
   <!-- hardware:=gazebo starts the driver's launch files through bringup,
        which does not declare it. -->
   <exec_depend>pilsbot_driver</exec_depend>
+  <exec_depend>rclpy</exec_depend>
   <exec_depend>ros_gz_bridge</exec_depend>
+  <exec_depend>ros_gz_image</exec_depend>
   <exec_depend>ros_gz_sim</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>tf2_ros_py</exec_depend>
 
   <test_depend>ackermann_msgs</test_depend>
   <test_depend>ament_cmake_pytest</test_depend>
@@ -32,8 +38,6 @@
   <test_depend>nav_msgs</test_depend>
   <test_depend>python3-pytest</test_depend>
   <test_depend>python3-yaml</test_depend>
-  <test_depend>rclpy</test_depend>
-  <test_depend>sensor_msgs</test_depend>
   <test_depend>tf2_msgs</test_depend>
   <test_depend>xacro</test_depend>
 

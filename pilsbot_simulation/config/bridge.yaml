@@ -1,69 +1,44 @@
-# ros_gz_bridge: Gazebo -> ROS only. /clock and the sensors of
-# pilsbot_description's hardware:=gazebo URDF (pilsbot.gazebo.urdf.xacro lists
-# their gz topics), under the robot's topic names.
-# test/test_bridge_config.py checks this file against the URDF.
+# ros_gz_bridge parameter_bridge with cameras:=true: Gazebo -> ROS only.
+# /clock and the camera_info of the cameras in pilsbot_description's
+# hardware:=gazebo URDF (pilsbot.gazebo.urdf.xacro lists their gz topics).
+# The images go through ros_gz_image's image_bridge (sim.launch.py), and
+# Gazebo's point cloud not at all: it is x-forward data under an
+# optical-frame header (pilsbot/pilsbot_simulation#4).
+# bridge_no_cameras.yaml is this file without the cameras.
+# test/test_bridge_config.py checks both against the URDF.
 - ros_topic_name: /clock
   gz_topic_name: /clock
   ros_type_name: rosgraph_msgs/msg/Clock
   gz_type_name: ignition.msgs.Clock
   direction: GZ_TO_ROS
 
-# OAK-D Lite (names of the Humble pilsbot_depthai mjpeg_node)
-- ros_topic_name: /camera/color/image_raw
-  gz_topic_name: camera/color/image_raw
-  ros_type_name: sensor_msgs/msg/Image
-  gz_type_name: ignition.msgs.Image
-  direction: GZ_TO_ROS
+# OAK-D Lite (names of the Humble pilsbot_depthai mjpeg_node). Gazebo puts
+# half the stereo baseline into P[3] of the left, right and depth
+# camera_info: they go to /gz/..., and scripts/camera_info_relay.py
+# publishes them under the robot's names with the baseline fixed.
 - ros_topic_name: /camera/color/camera_info
   gz_topic_name: camera/color/camera_info
   ros_type_name: sensor_msgs/msg/CameraInfo
   gz_type_name: ignition.msgs.CameraInfo
   direction: GZ_TO_ROS
-- ros_topic_name: /camera/left/image_rect
-  gz_topic_name: camera/left/image_rect
-  ros_type_name: sensor_msgs/msg/Image
-  gz_type_name: ignition.msgs.Image
-  direction: GZ_TO_ROS
-- ros_topic_name: /camera/left/camera_info
+- ros_topic_name: /gz/camera/left/camera_info
   gz_topic_name: camera/left/camera_info
   ros_type_name: sensor_msgs/msg/CameraInfo
   gz_type_name: ignition.msgs.CameraInfo
   direction: GZ_TO_ROS
-- ros_topic_name: /camera/right/image_rect
-  gz_topic_name: camera/right/image_rect
-  ros_type_name: sensor_msgs/msg/Image
-  gz_type_name: ignition.msgs.Image
-  direction: GZ_TO_ROS
-- ros_topic_name: /camera/right/camera_info
+- ros_topic_name: /gz/camera/right/camera_info
   gz_topic_name: camera/right/camera_info
   ros_type_name: sensor_msgs/msg/CameraInfo
   gz_type_name: ignition.msgs.CameraInfo
   direction: GZ_TO_ROS
-- ros_topic_name: /camera/stereo/depth
-  gz_topic_name: camera/stereo/depth
-  ros_type_name: sensor_msgs/msg/Image
-  gz_type_name: ignition.msgs.Image
-  direction: GZ_TO_ROS
-- ros_topic_name: /camera/stereo/camera_info
+- ros_topic_name: /gz/camera/stereo/camera_info
   gz_topic_name: camera/stereo/camera_info
   ros_type_name: sensor_msgs/msg/CameraInfo
   gz_type_name: ignition.msgs.CameraInfo
   direction: GZ_TO_ROS
 
-# Sim only: the robot computes the point cloud on the host.
-- ros_topic_name: /camera/stereo/points
-  gz_topic_name: camera/stereo/depth/points
-  ros_type_name: sensor_msgs/msg/PointCloud2
-  gz_type_name: ignition.msgs.PointCloudPacked
-  direction: GZ_TO_ROS
-
-# CSI front camera (jetson_camera)
-- ros_topic_name: /image_raw
-  gz_topic_name: front_camera/image_raw
-  ros_type_name: sensor_msgs/msg/Image
-  gz_type_name: ignition.msgs.Image
-  direction: GZ_TO_ROS
-- ros_topic_name: /camera_info
+# CSI front camera (pilsbot_bringup camera.launch.py)
+- ros_topic_name: /front_camera/camera_info
   gz_topic_name: front_camera/camera_info
   ros_type_name: sensor_msgs/msg/CameraInfo
   gz_type_name: ignition.msgs.CameraInfo
